@@ -49,7 +49,6 @@
         .chore-btn .name { font-size: 0.8rem; color: #333; font-weight: 500; text-align: center; }
         .chore-btn .price { font-size: 0.9rem; color: #f5576c; font-weight: bold; }
         .chore-btn.completed { background: #e8f5e9; animation: celebrate 0.5s ease; }
-        .chore-btn.syncing { opacity: 0.6; pointer-events: none; }
         @keyframes celebrate { 0% { transform: scale(1); } 50% { transform: scale(1.1) rotate(3deg); } 100% { transform: scale(1); } }
         .add-chore-section {
             background: rgba(255,255,255,0.15); border-radius: 16px; padding: 16px;
@@ -124,8 +123,10 @@
     </div>
 
     <script>
+    (function() {
         var KID_NAME = 'Leila';
         var SCRIPT_URL = localStorage.getItem('choreScriptUrl') || '';
+        var choreHistory = JSON.parse(localStorage.getItem('choreHistory_' + KID_NAME) || '[]');
 
         var defaultChores = [
             { emoji: '&#127869;&#65039;', name: 'Washing Plate', price: 0.25 },
@@ -139,120 +140,133 @@
             { emoji: '&#128452;&#65039;', name: 'Organizing Any Drawer ($5)', price: 5.00 }
         ];
 
-        var history = [];
-
         function checkSetup() {
             if (!SCRIPT_URL) {
                 document.getElementById('setupBanner').style.display = 'block';
             } else {
                 document.getElementById('setupBanner').style.display = 'none';
-                loadHistory();
+                loadFromCloud();
             }
+            updateDisplay();
         }
 
-        function saveUrl() {
+        window.saveUrl = function() {
             var url = document.getElementById('scriptUrl').value.trim();
             if (url) {
                 SCRIPT_URL = url;
                 localStorage.setItem('choreScriptUrl', url);
                 document.getElementById('setupBanner').style.display = 'none';
-                loadHistory();
+                loadFromCloud();
             }
-        }
+        };
 
-        function loadHistory() {
+        function loadFromCloud() {
             if (!SCRIPT_URL) return;
             document.getElementById('syncStatus').textContent = 'Syncing...';
-            fetch(SCRIPT_URL + '?kid=' + KID_NAME)
+            fetch(SCRIPT_URL + '?kid=' + encodeURIComponent(KID_NAME), { redirect: 'follow' })
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
-                    if (data.history) {
-                        history = data.history;
+                    if (data.history && data.history.length > 0) {
+                        choreHistory = data.history;
+                        localStorage.setItem('choreHistory_' + KID_NAME, JSON.stringify(choreHistory));
                         updateDisplay();
-                        document.getElementById('syncStatus').textContent = 'Synced!';
-                        setTimeout(function() { document.getElementById('syncStatus').textContent = ''; }, 2000);
                     }
+                    document.getElementById('syncStatus').textContent = 'Synced!';
+                    setTimeout(function() { document.getElementById('syncStatus').textContent = ''; }, 2000);
                 })
-                .catch(function(err) {
-                    document.getElementById('syncStatus').textContent = 'Offline mode';
+                .catch(function() {
+                    document.getElementById('syncStatus').textContent = 'Using offline data';
+                    setTimeout(function() { document.getElementById('syncStatus').textContent = ''; }, 3000);
                 });
         }
 
+        function saveToCloud(entry) {
+            if (!SCRIPT_URL) return;
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                redirect: 'follow',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ kid: KID_NAME, name: entry.name, price: entry.price, time: entry.time, emoji: '' })
+            }).then(function(r) { return r.json(); }).then(function() {
+                document.getElementById('syncStatus').textContent = 'Saved!';
+                setTimeout(function() { document.getElementById('syncStatus').textContent = ''; }, 2000);
+            }).catch(function() {
+                document.getElementById('syncStatus').textContent = 'Saved locally (offline)';
+                setTimeout(function() { document.getElementById('syncStatus').textContent = ''; }, 3000);
+            });
+        }
+
         function getTotalEarned() {
-            return history.reduce(function(sum, item) { return sum + (Number(item.price) || 0); }, 0);
+            return choreHistory.reduce(function(sum, item) { return sum + (Number(item.price) || 0); }, 0);
         }
 
         function updateDisplay() {
             var total = getTotalEarned();
             document.getElementById('totalAmount').textContent = '$' + total.toFixed(2);
             document.getElementById('choreCount').textContent =
-                history.length + ' chore' + (history.length !== 1 ? 's' : '') + ' completed';
+                choreHistory.length + ' chore' + (choreHistory.length !== 1 ? 's' : '') + ' completed';
             renderHistory();
         }
 
         function renderChores() {
             var grid = document.getElementById('choresGrid');
-            grid.innerHTML = defaultChores.map(function(chore, i) {
-                return '<button class="chore-btn" onclick="completeChore(' + i + ')" id="chore-' + i + '">' +
-                    '<span class="emoji">' + chore.emoji + '</span>' +
-                    '<span class="name">' + chore.name + '</span>' +
-                    '<span class="price">$' + chore.price.toFixed(2) + '</span>' +
+            var html = '';
+            for (var i = 0; i < defaultChores.length; i++) {
+                html += '<button class="chore-btn" data-index="' + i + '">' +
+                    '<span class="emoji">' + defaultChores[i].emoji + '</span>' +
+                    '<span class="name">' + defaultChores[i].name + '</span>' +
+                    '<span class="price">$' + defaultChores[i].price.toFixed(2) + '</span>' +
                 '</button>';
-            }).join('');
-        }
-
-        function renderHistory() {
-            var list = document.getElementById('historyList');
-            if (history.length === 0) {
-                list.innerHTML = '<div class="empty-state">No chores done yet - get started!</div>';
-                return;
             }
-            var recent = history.slice().reverse().slice(0, 20);
-            list.innerHTML = recent.map(function(item) {
-                return '<div class="history-item">' +
-                    '<div class="info">' +
-                        '<span class="chore-name">' + item.name + '</span>' +
-                        '<span class="time">' + item.time + '</span>' +
-                    '</div>' +
-                    '<span class="earned">+$' + Number(item.price).toFixed(2) + '</span>' +
-                '</div>';
-            }).join('');
-        }
+            grid.innerHTML = html;
 
-        function completeChore(index) {
-            var chore = defaultChores[index];
-            var now = new Date();
-            var timeStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            var entry = { name: chore.name, price: chore.price, time: timeStr };
-            history.push(entry);
-            updateDisplay();
-
-            var btn = document.getElementById('chore-' + index);
-            btn.classList.add('completed');
-            setTimeout(function() { btn.classList.remove('completed'); }, 600);
-            spawnConfetti();
-
-            if (SCRIPT_URL) {
-                btn.classList.add('syncing');
-                fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ kid: KID_NAME, name: chore.name, price: chore.price, time: timeStr, emoji: '' }),
-                    headers: { 'Content-Type': 'text/plain' }
-                })
-                .then(function(r) { return r.json(); })
-                .then(function(data) {
-                    btn.classList.remove('syncing');
-                    document.getElementById('syncStatus').textContent = 'Saved!';
-                    setTimeout(function() { document.getElementById('syncStatus').textContent = ''; }, 2000);
-                })
-                .catch(function() {
-                    btn.classList.remove('syncing');
-                    document.getElementById('syncStatus').textContent = 'Save failed - check connection';
+            // Add click handlers
+            var buttons = grid.querySelectorAll('.chore-btn');
+            for (var j = 0; j < buttons.length; j++) {
+                buttons[j].addEventListener('click', function() {
+                    var index = parseInt(this.getAttribute('data-index'));
+                    completeChore(index, this);
                 });
             }
         }
 
-        function addCustomChore() {
+        function renderHistory() {
+            var list = document.getElementById('historyList');
+            if (choreHistory.length === 0) {
+                list.innerHTML = '<div class="empty-state">No chores done yet - get started!</div>';
+                return;
+            }
+            var recent = choreHistory.slice().reverse().slice(0, 20);
+            var html = '';
+            for (var i = 0; i < recent.length; i++) {
+                html += '<div class="history-item">' +
+                    '<div class="info">' +
+                        '<span class="chore-name">' + recent[i].name + '</span>' +
+                        '<span class="time">' + recent[i].time + '</span>' +
+                    '</div>' +
+                    '<span class="earned">+$' + Number(recent[i].price).toFixed(2) + '</span>' +
+                '</div>';
+            }
+            list.innerHTML = html;
+        }
+
+        function completeChore(index, btn) {
+            var chore = defaultChores[index];
+            var now = new Date();
+            var timeStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            var entry = { name: chore.name, price: chore.price, time: timeStr };
+
+            choreHistory.push(entry);
+            localStorage.setItem('choreHistory_' + KID_NAME, JSON.stringify(choreHistory));
+            updateDisplay();
+
+            btn.classList.add('completed');
+            setTimeout(function() { btn.classList.remove('completed'); }, 600);
+            spawnConfetti();
+            saveToCloud(entry);
+        }
+
+        window.addCustomChore = function() {
             var nameInput = document.getElementById('customName');
             var priceInput = document.getElementById('customPrice');
             var name = nameInput.value.trim();
@@ -265,24 +279,19 @@
             var now = new Date();
             var timeStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
             var entry = { name: name, price: price, time: timeStr };
-            history.push(entry);
+            choreHistory.push(entry);
+            localStorage.setItem('choreHistory_' + KID_NAME, JSON.stringify(choreHistory));
             updateDisplay();
             spawnConfetti();
-            if (SCRIPT_URL) {
-                fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ kid: KID_NAME, name: name, price: price, time: timeStr, emoji: '' }),
-                    headers: { 'Content-Type': 'text/plain' }
-                }).catch(function() {});
-            }
+            saveToCloud(entry);
             nameInput.value = '';
             priceInput.value = '';
-        }
+        };
 
         function spawnConfetti() {
-            var chars = ['*', '+', '$', '!'];
+            var chars = ['*', '+', '$', '!', '#'];
             for (var i = 0; i < 8; i++) {
-                (function(i) {
+                (function(idx) {
                     setTimeout(function() {
                         var el = document.createElement('div');
                         el.className = 'confetti';
@@ -292,13 +301,14 @@
                         el.style.color = ['#f093fb','#f5576c','#43e97b','#4facfe','#ffc107'][Math.floor(Math.random()*5)];
                         document.body.appendChild(el);
                         setTimeout(function() { el.remove(); }, 1600);
-                    }, i * 80);
+                    }, idx * 80);
                 })(i);
             }
         }
 
         renderChores();
         checkSetup();
+    })();
     </script>
 </body>
 </html>
