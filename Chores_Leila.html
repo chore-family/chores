@@ -18,39 +18,14 @@
         .header h1 { color: white; font-size: 1.8rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
         .header p { color: rgba(255,255,255,0.85); font-size: 0.95rem; margin-top: 4px; }
         .setup-banner {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 12px;
-            padding: 14px;
-            margin-bottom: 20px;
-            font-size: 0.85rem;
-            color: #856404;
-            display: none;
+            background: #fff3cd; border: 1px solid #ffc107; border-radius: 12px;
+            padding: 14px; margin-bottom: 20px; font-size: 0.85rem; color: #856404; display: none;
         }
-        .setup-banner input {
-            width: 100%;
-            padding: 8px;
-            margin-top: 8px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 0.85rem;
-        }
-        .setup-banner button {
-            margin-top: 8px;
-            padding: 8px 16px;
-            background: #28a745;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
+        .setup-banner input { width: 100%; padding: 8px; margin-top: 8px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.85rem; }
+        .setup-banner button { margin-top: 8px; padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
         .earnings-card {
-            background: white;
-            border-radius: 20px;
-            padding: 24px;
-            text-align: center;
-            margin-bottom: 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            background: white; border-radius: 20px; padding: 24px; text-align: center;
+            margin-bottom: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
         }
         .earnings-card .label { font-size: 0.9rem; color: #666; text-transform: uppercase; letter-spacing: 1px; }
         .earnings-card .amount {
@@ -83,8 +58,7 @@
         .add-chore-form { display: flex; gap: 8px; flex-wrap: wrap; }
         .add-chore-form input {
             flex: 1; min-width: 100px; padding: 12px 16px; border: none;
-            border-radius: 12px; font-size: 0.9rem; outline: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 12px; font-size: 0.9rem; outline: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         .add-chore-form input[type="number"] { max-width: 90px; }
         .add-btn {
@@ -92,9 +66,7 @@
             border-radius: 12px; padding: 12px 20px; color: white; font-weight: bold;
             font-size: 0.9rem; cursor: pointer; box-shadow: 0 4px 12px rgba(67, 233, 123, 0.3);
         }
-        .history-section {
-            background: rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; backdrop-filter: blur(10px);
-        }
+        .history-section { background: rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; backdrop-filter: blur(10px); }
         .history-item {
             display: flex; justify-content: space-between; align-items: center;
             padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); color: white;
@@ -104,10 +76,7 @@
         .history-item .chore-name { font-weight: 500; font-size: 0.9rem; }
         .history-item .time { font-size: 0.75rem; color: rgba(255,255,255,0.6); }
         .history-item .earned { color: #43e97b; font-weight: bold; }
-        .sync-status {
-            text-align: center; color: rgba(255,255,255,0.7); font-size: 0.8rem;
-            margin-top: 16px; padding: 8px;
-        }
+        .sync-status { text-align: center; color: rgba(255,255,255,0.7); font-size: 0.8rem; margin-top: 16px; padding: 8px; }
         .empty-state { text-align: center; color: rgba(255,255,255,0.6); padding: 20px; font-size: 0.9rem; }
         .confetti { position: fixed; pointer-events: none; z-index: 1000; animation: fall 1.5s ease-out forwards; font-size: 1.5rem; }
         @keyframes fall { 0% { opacity: 1; transform: translateY(0) rotate(0deg); } 100% { opacity: 0; transform: translateY(300px) rotate(720deg); } }
@@ -132,10 +101,10 @@
             <div class="subtitle" id="choreCount">0 chores completed</div>
         </div>
 
-        <div class="section-title">&#129529; Quick Chores</div>
+        <div class="section-title">Quick Chores</div>
         <div class="chores-grid" id="choresGrid"></div>
 
-        <div class="section-title">&#10133; Add Custom Chore</div>
+        <div class="section-title">+ Add Custom Chore</div>
         <div class="add-chore-section">
             <div class="add-chore-form">
                 <input type="text" id="customName" placeholder="Chore name..." />
@@ -144,10 +113,10 @@
             </div>
         </div>
 
-        <div class="section-title">&#128203; History</div>
+        <div class="section-title">History</div>
         <div class="history-section">
             <div id="historyList">
-                <div class="empty-state">No chores done yet &#8212; get started! &#128170;</div>
+                <div class="empty-state">No chores done yet - get started!</div>
             </div>
         </div>
 
@@ -159,20 +128,19 @@
         var SCRIPT_URL = localStorage.getItem('choreScriptUrl') || '';
 
         var defaultChores = [
-            { emoji: '\u{1F37D}\uFE0F', name: 'Washing Plate', price: 0.25 },
-            { emoji: '\u{1F9F9}', name: 'Cleaning the Room', price: 10.00 },
-            { emoji: '\u{1F697}', name: 'Cleaning the Car', price: 60.00 },
-            { emoji: '\u{1F331}', name: 'Cutting Grass', price: 10.00 },
-            { emoji: '\u{1F9FD}', name: 'Cleaning the Table', price: 2.00 },
-            { emoji: '\u{1F4E6}', name: 'Folding Boxes ($0.50/box)', price: 0.50 },
-            { emoji: '\u{1F5D1}\uFE0F', name: 'Fresh Bags ($1/bag)', price: 1.00 },
-            { emoji: '\u{1F455}', name: 'Organizing Drawers - clothes ($10)', price: 10.00 },
-            { emoji: '\u{1F5C4}\uFE0F', name: 'Organizing Any Drawer ($5)', price: 5.00 },
+            { emoji: '&#127869;&#65039;', name: 'Washing Plate', price: 0.25 },
+            { emoji: '&#129529;', name: 'Cleaning the Room', price: 10.00 },
+            { emoji: '&#128663;', name: 'Cleaning the Car', price: 60.00 },
+            { emoji: '&#127793;', name: 'Cutting Grass', price: 10.00 },
+            { emoji: '&#129533;', name: 'Cleaning the Table', price: 2.00 },
+            { emoji: '&#128230;', name: 'Folding Boxes ($0.50/box)', price: 0.50 },
+            { emoji: '&#128465;&#65039;', name: 'Fresh Bags ($1/bag)', price: 1.00 },
+            { emoji: '&#128085;', name: 'Organizing Drawers - clothes ($10)', price: 10.00 },
+            { emoji: '&#128452;&#65039;', name: 'Organizing Any Drawer ($5)', price: 5.00 }
         ];
 
         var history = [];
 
-        // Check if URL is set
         function checkSetup() {
             if (!SCRIPT_URL) {
                 document.getElementById('setupBanner').style.display = 'block';
@@ -201,12 +169,12 @@
                     if (data.history) {
                         history = data.history;
                         updateDisplay();
-                        document.getElementById('syncStatus').textContent = 'Synced \u2713';
+                        document.getElementById('syncStatus').textContent = 'Synced!';
                         setTimeout(function() { document.getElementById('syncStatus').textContent = ''; }, 2000);
                     }
                 })
                 .catch(function(err) {
-                    document.getElementById('syncStatus').textContent = 'Offline mode - will sync later';
+                    document.getElementById('syncStatus').textContent = 'Offline mode';
                 });
         }
 
@@ -236,14 +204,14 @@
         function renderHistory() {
             var list = document.getElementById('historyList');
             if (history.length === 0) {
-                list.innerHTML = '<div class="empty-state">No chores done yet \u2014 get started! \u{1F4AA}</div>';
+                list.innerHTML = '<div class="empty-state">No chores done yet - get started!</div>';
                 return;
             }
             var recent = history.slice().reverse().slice(0, 20);
             list.innerHTML = recent.map(function(item) {
                 return '<div class="history-item">' +
                     '<div class="info">' +
-                        '<span class="chore-name">' + (item.emoji || '\u2B50') + ' ' + item.name + '</span>' +
+                        '<span class="chore-name">' + item.name + '</span>' +
                         '<span class="time">' + item.time + '</span>' +
                     '</div>' +
                     '<span class="earned">+$' + Number(item.price).toFixed(2) + '</span>' +
@@ -255,28 +223,26 @@
             var chore = defaultChores[index];
             var now = new Date();
             var timeStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-
-            var entry = { emoji: chore.emoji, name: chore.name, price: chore.price, time: timeStr };
+            var entry = { name: chore.name, price: chore.price, time: timeStr };
             history.push(entry);
             updateDisplay();
 
-            // Animate
             var btn = document.getElementById('chore-' + index);
             btn.classList.add('completed');
             setTimeout(function() { btn.classList.remove('completed'); }, 600);
             spawnConfetti();
 
-            // Sync to Google Sheet
             if (SCRIPT_URL) {
                 btn.classList.add('syncing');
                 fetch(SCRIPT_URL, {
                     method: 'POST',
-                    body: JSON.stringify({ kid: KID_NAME, name: chore.name, price: chore.price, time: timeStr, emoji: chore.emoji })
+                    body: JSON.stringify({ kid: KID_NAME, name: chore.name, price: chore.price, time: timeStr, emoji: '' }),
+                    headers: { 'Content-Type': 'text/plain' }
                 })
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
                     btn.classList.remove('syncing');
-                    document.getElementById('syncStatus').textContent = 'Saved \u2713';
+                    document.getElementById('syncStatus').textContent = 'Saved!';
                     setTimeout(function() { document.getElementById('syncStatus').textContent = ''; }, 2000);
                 })
                 .catch(function() {
@@ -296,18 +262,17 @@
                 setTimeout(function() { nameInput.style.boxShadow = ''; }, 1500);
                 return;
             }
-            // Immediately log this custom chore
             var now = new Date();
             var timeStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            var entry = { emoji: '\u2B50', name: name, price: price, time: timeStr };
+            var entry = { name: name, price: price, time: timeStr };
             history.push(entry);
             updateDisplay();
             spawnConfetti();
-
             if (SCRIPT_URL) {
                 fetch(SCRIPT_URL, {
                     method: 'POST',
-                    body: JSON.stringify({ kid: KID_NAME, name: name, price: price, time: timeStr, emoji: '\u2B50' })
+                    body: JSON.stringify({ kid: KID_NAME, name: name, price: price, time: timeStr, emoji: '' }),
+                    headers: { 'Content-Type': 'text/plain' }
                 }).catch(function() {});
             }
             nameInput.value = '';
@@ -315,15 +280,16 @@
         }
 
         function spawnConfetti() {
-            var emojis = ['\u{1F389}', '\u2B50', '\u{1F4B0}', '\u2728', '\u{1F31F}', '\u{1F4AB}'];
+            var chars = ['*', '+', '$', '!'];
             for (var i = 0; i < 8; i++) {
                 (function(i) {
                     setTimeout(function() {
                         var el = document.createElement('div');
                         el.className = 'confetti';
-                        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                        el.textContent = chars[Math.floor(Math.random() * chars.length)];
                         el.style.left = (Math.random() * 80 + 10) + 'vw';
                         el.style.top = (Math.random() * 30 + 10) + 'vh';
+                        el.style.color = ['#f093fb','#f5576c','#43e97b','#4facfe','#ffc107'][Math.floor(Math.random()*5)];
                         document.body.appendChild(el);
                         setTimeout(function() { el.remove(); }, 1600);
                     }, i * 80);
@@ -331,7 +297,6 @@
             }
         }
 
-        // Init
         renderChores();
         checkSetup();
     </script>
