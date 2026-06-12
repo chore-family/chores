@@ -120,6 +120,8 @@
         </div>
 
         <div class="sync-status" id="syncStatus"></div>
+
+        <button style="display:block; margin:20px auto 0; background:linear-gradient(135deg,#43e97b,#38f9d7); border:none; border-radius:12px; padding:14px 28px; color:white; font-weight:bold; font-size:1rem; cursor:pointer; box-shadow:0 4px 12px rgba(67,233,123,0.3);" onclick="payday()">&#128176; Payday! Reset</button>
     </div>
 
     <script>
@@ -313,6 +315,19 @@
                 })(i);
             }
         }
+
+        window.payday = function() {
+            var total = getTotalEarned();
+            if (choreHistory.length === 0) {
+                alert('No chores to pay for yet!');
+                return;
+            }
+            if (confirm('Payday! Pay out $' + total.toFixed(2) + ' and reset the counter?\n\nThis will clear the history and start fresh.')) {
+                choreHistory = [];
+                localStorage.setItem('choreHistory_' + KID_NAME, JSON.stringify(choreHistory));
+                updateDisplay();
+            }
+        };
 
         renderChores();
         checkSetup();
